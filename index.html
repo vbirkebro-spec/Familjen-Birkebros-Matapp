@@ -92,7 +92,7 @@ function renderPlan(){
   const details=meal&&meal!=='Annat'?'<details data-details="'+i+'"><summary>'+portionFormat.format(total)+' vuxenportioner'+(config.cook?' · '+esc(config.cook):'')+(config.time?' kl. '+esc(config.time):'')+'</summary><div class="cook-fields"><label>Vem lagar?<select data-cook="'+i+'"><option value="">Välj person</option>'+['Viktor','Linda'].map(name=>'<option '+(config.cook===name?'selected':'')+'>'+name+'</option>').join('')+'</select></label><label>Tillagningstid<input type="time" data-time="'+i+'" value="'+esc(config.time||'')+'"></label></div><p class="muted">Välj måltider och justera mängden vid behov. Hela familjen äter 3 vuxenportioner.</p>'+Array.from({length:14},(_,slot)=>{
    const when=plusDays(start,i+Math.floor(slot/2)),label=dateLabel(when)+' · '+mealNames[slot%2];
    return '<div class="meal-pick"><label><input type="checkbox" data-serving="'+i+':'+slot+'" '+(servings[slot]?'checked':'')+'> '+esc(label)+'</label>'+(servings[slot]?'<input type="number" min="0.5" max="99" step="0.5" data-amount="'+i+':'+slot+'" aria-label="Vuxenportioner för '+esc(label)+'" value="'+servings[slot]+'">':'')+'</div>';
-  }).join('')+'</details>':'';
+  }).join('')+thawReminderLink(meal,plusDays(start,i))+'</details>':'';
   return '<article class="cook-card"><label>'+day+'<select data-day="'+i+'"><option value="">Välj rätt att laga</option>'+options.join('')+'<option value="Annat" '+(meal==='Annat'?'selected':'')+'>Annat / äter ute</option></select></label>'+details+'</article>';
  }).join('');
  const persist=(day)=>{
@@ -127,6 +127,19 @@ function renderPlan(){
   persist(day);
  });
  renderCoverage(start);
+}
+function thawReminderLink(meal,cookDate){
+ if(meal!=='Kycklingpasta med ajvar och fetaost'&&meal!=='Ajvar-kyckling')return '';
+ const reminderDate=plusDays(cookDate,-1);
+ const day=[reminderDate.getFullYear(),String(reminderDate.getMonth()+1).padStart(2,'0'),String(reminderDate.getDate()).padStart(2,'0')].join('');
+ const query=new URLSearchParams({
+  action:'TEMPLATE',
+  text:'Ta upp fryst kyckling',
+  dates:day+'T210000/'+day+'T211000',
+  ctz:'Europe/Stockholm',
+  details:'Ta upp kycklingen och låt den tina i kylskåpet inför '+meal+' nästa dag.'
+ });
+ return '<p><a href="https://calendar.google.com/calendar/render?'+esc(query.toString())+'" target="_blank" rel="noopener noreferrer">Öppna påminnelse i Google Kalender</a><br><small>Spara i Google Kalender och lägg till gäster där.</small></p>';
 }
 function renderCoverage(start){
  const slots=new Map();
