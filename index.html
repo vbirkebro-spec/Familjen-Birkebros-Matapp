@@ -6,50 +6,50 @@ const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{retur
 const familyRecipes=[
   {
     "name": "Pasta pesto tuna",
-    "portions": 4,
+    "portions": 8,
     "ingredients": [
-      "250 g okokt pasta",
-      "2 burkar tonfisk i vatten à 150 g",
-      "1 dl röd pesto",
+      "500 g okokt pasta",
+      "4 burkar tonfisk i vatten à 150 g",
+      "2 dl röd pesto",
       "Salt och peppar",
-      "0,5 dl riven parmesan",
-      "2 msk solrosfrön",
-      "70 g färsk spenat"
+      "1 dl riven parmesan",
+      "4 msk solrosfrön",
+      "140 g färsk spenat"
     ],
-    "steps": "1. Koka pastan och spara 1 dl pastavatten.\n2. Häll av tonfisken och blanda med pesto, salt och peppar.\n3. Häll av pastan utan att skölja den och lägg tillbaka i kastrullen. Rör ner tonfiskblandningen och värm. Späd vid behov med pastavatten och smaka av.\n4. Vänd ner spenaten och toppa med parmesan och solrosfrön."
+    "steps": "1. Koka pastan och spara 2 dl pastavatten.\n2. Häll av tonfisken och blanda med pesto, salt och peppar.\n3. Häll av pastan utan att skölja den och lägg tillbaka i kastrullen. Rör ner tonfiskblandningen och värm. Späd vid behov med pastavatten och smaka av.\n4. Vänd ner spenaten och toppa med parmesan och solrosfrön."
   },
   {
     "name": "Kycklingpasta med ajvar och fetaost",
-    "portions": 4,
+    "portions": 8,
     "ingredients": [
-      "250 g okokt pasta",
-      "300 g kycklingfilé",
-      "1 msk rapsolja",
-      "2 dl ajvar relish",
-      "1 burk majskorn à 140 g",
+      "500 g okokt pasta",
+      "600 g kycklingfilé",
+      "2 msk rapsolja",
+      "4 dl ajvar relish",
+      "2 burkar majskorn à 140 g",
       "Salt och peppar",
-      "100 g fetaost"
+      "200 g fetaost"
     ],
     "steps": "1. Koka pastan enligt förpackningen.\n2. Tina kycklingen om den är fryst. Tärna och stek den i rapsolja tills den är genomstekt och fått färg. Salta och peppra.\n3. Häll av pastan utan att skölja den. Lägg tillbaka den i kastrullen och blanda med kyckling och ajvar. Smaka av.\n4. Vänd ner majsen och toppa med smulad fetaost. Servera varm eller kall."
   },
   {
     "name": "Kål- och färspanna med ris",
-    "portions": 4,
+    "portions": 8,
     "ingredients": [
-      "150 g okokt ris",
-      "200 g vitkål",
-      "2 morötter",
-      "500 g kycklingfärs",
-      "2 msk rapsolja",
-      "1 msk sambal oelek",
-      "2 vitlöksklyftor",
-      "2 msk fisksås",
-      "1 msk flytande honung",
-      "1 msk japansk soja",
-      "1 lime (saften)",
-      "1 salladslök",
+      "300 g okokt ris",
+      "400 g vitkål",
+      "4 morötter",
+      "1000 g kycklingfärs",
+      "4 msk rapsolja",
+      "2 msk sambal oelek",
+      "4 vitlöksklyftor",
+      "4 msk fisksås",
+      "2 msk flytande honung",
+      "2 msk japansk soja",
+      "2 lime (saften)",
+      "2 salladslökar",
       "Koriander (valfritt)",
-      "200 g isbergssallad"
+      "400 g isbergssallad"
     ],
     "steps": "1. Koka riset enligt förpackningen och låt det svalna något.\n2. Riv morötterna grovt och finstrimla vitkålen.\n3. Stek färsen genomstekt och smulig i oljan. Fräs med morötter och kål några minuter. Rör ner sambal, vitlök, fisksås, honung och soja och stek under omrörning.\n4. Vänd ner riset och stek lite till, eller servera det bredvid. Smaka av med limesaft. Toppa med hackad salladslök och eventuellt koriander.\n5. Hacka isbergssalladen och servera till."
   }
@@ -59,7 +59,9 @@ const normalize=name=>name.trim().toLocaleLowerCase('sv');
 const hiddenRecipes=load('hiddenFamilyRecipes',[]);
 let recipes=load('recipes',seed),plans=load('plans',{}),items=load('items',standardItems.map(name=>({name,done:false}))),offset=0;
 for(const recipe of familyRecipes){
- if(!hiddenRecipes.includes(recipe.name)&&!recipes.some(existing=>normalize(existing.name)===normalize(recipe.name)))recipes.push(recipe);
+ const index=recipes.findIndex(existing=>normalize(existing.name)===normalize(recipe.name));
+ if(index===-1&&!hiddenRecipes.includes(recipe.name))recipes.push(recipe);
+ if(index!==-1&&recipes[index].portions===4)recipes[index]={...recipes[index],...recipe};
 }
 let pantry=load('pantry',[...standardItems.map(name=>({name,weeks:0})),{name:'Havredrink',weeks:0},{name:'Kaviar',weeks:3}]);
 const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
