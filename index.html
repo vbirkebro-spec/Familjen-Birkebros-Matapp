@@ -1,21 +1,140 @@
 <!doctype html><html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Familjen Birkebros matresa</title><style>
 :root{font-family:system-ui,-apple-system,sans-serif;color:#244536;background:#faf7ed}*{box-sizing:border-box}body{margin:0}header{text-align:center;background:#f1ead6;padding:25px 12px;border-bottom:3px solid #e5d7b6}header h1{font-family:Georgia,serif;font-size:clamp(30px,5vw,48px);margin:0;color:#244e3b}header p{color:#c76d38;margin:3px;font-size:22px;font-weight:bold}main{max-width:1100px;margin:auto;padding:20px}nav{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}button{cursor:pointer;border:0;border-radius:14px;padding:12px 17px;background:#e9efe3;color:#244536;font-size:15px}button.active,.primary{background:#24543e;color:white}.panel{background:white;border:1px solid #e8e4d9;border-radius:20px;padding:20px;margin:12px 0;box-shadow:0 2px 9px #2445360a}.layout{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}.day{display:grid;grid-template-columns:54px 1fr 115px 100px auto;gap:10px;align-items:center;border-bottom:1px solid #eee;padding:12px 0}.day:last-child{border:0}.day strong{background:#e7eee3;border-radius:10px;padding:10px;text-align:center}h2{font-family:Georgia,serif;margin-top:0}h3{margin:8px 0}input,select,textarea{font:inherit;border:1px solid #cdd5ca;border-radius:10px;padding:11px;width:100%;background:white;margin:5px 0 12px}label{display:block;font-weight:600}ul{padding-left:23px}li{margin:9px 0}.muted{color:#667568;font-size:14px}.actions{display:flex;gap:8px;flex-wrap:wrap}.recipe{border-bottom:1px solid #eee;padding:12px 0}.recipe:last-child{border:0}.hidden{display:none}@media(max-width:700px){.layout{grid-template-columns:1fr}.day{grid-template-columns:45px 1fr 90px 80px auto}.panel{padding:15px}main{padding:12px}}
-</style></head><body><header><div style="font-size:32px">🍅 👩‍🍳 🥬</div><h1>Familjen Birkebros</h1><p>matresa ♡</p></header><main><nav><button data-tab="plan" class="active">📅 Veckoplan</button><button data-tab="recipes">📖 Recept</button><button data-tab="shopping">🛒 Inköpslista</button><button data-tab="inspiration">✨ Inspiration</button></nav><section id="plan"><div class="layout"><div class="panel"><div class="actions" style="justify-content:space-between;align-items:center"><h2>Veckans matplan</h2><div><button id="prev">‹</button> <span id="week"></span> <button id="next">›</button></div></div><p class="muted">Välj rätt, starttid och vem som lagar maten. Tryck på 📅 för att lägga in en kalenderhändelse (60 minuter).</p><div id="days"></div></div><div><div class="panel"><h2>🛒 Inköpslista</h2><p>Allt ni behöver till veckans rätter.</p><button class="primary" data-go="shopping">Öppna listan →</button></div><div class="panel" style="background:#fff1e5"><h2>✨ Middagsinspiration</h2><p>Hitta något gott till veckan.</p><button data-go="inspiration">Se förslag</button></div></div></div></section><section id="recipes" class="hidden"><div class="panel"><h2>Familjens recept</h2><div id="recipesList"></div><h3>Lägg till recept</h3><form id="recipeForm"><label>Namn<input id="rname" required placeholder="T.ex. Kycklinggryta"></label><label>Ingredienser (en per rad)<textarea id="ring" rows="5" placeholder="500 g kyckling&#10;2 dl grädde" required></textarea></label><label>Gör så här<textarea id="rsteps" rows="4"></textarea></label><button class="primary">Spara recept</button></form></div></section><section id="shopping" class="hidden"><div class="panel"><h2>Inköpslista</h2><p class="muted">Bocka av varor när ni handlar. Listan sparas i den här webbläsaren.</p><div class="actions"><button id="generate">Skapa från veckoplanen</button><button id="clearChecked">Ta bort avbockade</button></div><form id="itemForm" class="actions"><input id="itemName" placeholder="Lägg till vara" style="flex:1;min-width:180px" required><button class="primary">Lägg till</button></form><div id="items"></div></div></section><section id="inspiration" class="hidden"><div class="panel"><h2>Vad ska vi äta?</h2><p>Slumpa fram ett recept från er samling.</p><button class="primary" id="random">Ge mig ett förslag</button><h3 id="suggestion"></h3></div></section><p class="muted" style="text-align:center">Testversion • Sparar data lokalt på enheten. Delning mellan familjemedlemmar kommer senare.</p></main><script>
+</style></head><body><header><div style="font-size:32px">🍅 👩‍🍳 🥬</div><h1>Familjen Birkebros</h1><p>matresa ♡</p></header><main><nav><button data-tab="plan" class="active">📅 Veckoplan</button><button data-tab="recipes">📖 Recept</button><button data-tab="shopping">🛒 Inköpslista</button><button data-tab="inspiration">✨ Inspiration</button></nav><section id="plan"><div class="layout"><div class="panel"><div class="actions" style="justify-content:space-between;align-items:center"><h2>Veckans matplan</h2><div><button id="prev">‹</button> <span id="week"></span> <button id="next">›</button></div></div><p class="muted">Välj rätt, starttid och vem som lagar maten. Tryck på 📅 för att lägga in en kalenderhändelse (60 minuter).</p><div class="actions"><button id="suggestWeek">Föreslå veckomeny</button></div><p id="weekStatus" class="muted" aria-live="polite"></p><div id="days"></div></div><div><div class="panel"><h2>🛒 Inköpslista</h2><p>Allt ni behöver till veckans rätter.</p><button class="primary" data-go="shopping">Öppna listan →</button></div><div class="panel" style="background:#fff1e5"><h2>✨ Middagsinspiration</h2><p>Hitta något gott till veckan.</p><button data-go="inspiration">Se förslag</button></div></div></div></section><section id="recipes" class="hidden"><div class="panel"><h2>Familjens recept</h2><div id="recipesList"></div><h3>Lägg till recept</h3><form id="recipeForm"><label>Receptfoto<input id="recipePhoto" type="file" accept="image/*"></label><p id="photoStatus" class="muted" aria-live="polite"></p><label>Namn<input id="rname" required placeholder="T.ex. Kycklinggryta"></label><label>Ingredienser (en per rad)<textarea id="ring" rows="5" placeholder="500 g kyckling&#10;2 dl grädde" required></textarea></label><label>Gör så här<textarea id="rsteps" rows="4"></textarea></label><button class="primary">Spara recept</button></form></div></section><section id="shopping" class="hidden"><div class="panel"><h2>Inköpslista</h2><p class="muted">Bocka av varor när ni handlar. Listan sparas i den här webbläsaren.</p><div class="actions"><button id="generate">Skapa från veckoplanen</button><button id="clearChecked">Ta bort avbockade</button></div><form id="itemForm" class="actions"><input id="itemName" placeholder="Lägg till vara" style="flex:1;min-width:180px" required><button class="primary">Lägg till</button></form><div id="items"></div></div></section><section id="inspiration" class="hidden"><div class="panel"><h2>Vad ska vi äta?</h2><p>Slumpa fram ett recept från er samling.</p><button class="primary" id="random">Ge mig ett förslag</button><h3 id="suggestion"></h3><h3>Nya recept att prova</h3><div id="newIdeas"></div></div></section><p class="muted" style="text-align:center">Testversion • Sparar data lokalt på enheten. Delning mellan familjemedlemmar kommer senare.</p></main><script>
 const seed=[{name:'Ajvar-kyckling',ingredients:['800 g kyckling','2 dl ajvar','3 dl grädde'],steps:'Stek kycklingen, rör ner ajvar och grädde. Låt puttra.'},{name:'Tonfiskpasta',ingredients:['500 g pasta','2 burkar tonfisk','2 dl crème fraîche'],steps:'Koka pastan och blanda med tonfisk och crème fraîche.'},{name:'Krämig lasagne',ingredients:['500 g köttfärs','lasagneplattor','500 g krossade tomater','ost'],steps:'Varva köttfärssås, plattor och ost. Grädda i ugnen.'},{name:'Lax i ugn med grönsaker',ingredients:['800 g lax','potatis','broccoli','citron'],steps:'Tillaga lax och grönsaker i ugnen tills laxen är klar.'}];
 const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 let recipes=load('recipes',seed),plans=load('plans',{}),items=load('items',[]),offset=0;
 const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function monday(){let d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7)+offset*7);d.setHours(12,0,0,0);return d}function key(){let d=monday();return d.toISOString().slice(0,10)}function show(tab){document.querySelectorAll('main>section').forEach(x=>x.classList.toggle('hidden',x.id!==tab));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));if(tab==='recipes')renderRecipes();if(tab==='shopping')renderItems()}
+function monday(){let d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7)+offset*7);d.setHours(12,0,0,0);return d}function key(){let d=monday();return d.toISOString().slice(0,10)}function show(tab){document.querySelectorAll('main>section').forEach(x=>x.classList.toggle('hidden',x.id!==tab));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));if(tab==='recipes')renderRecipes();if(tab==='shopping')renderItems();if(tab==='inspiration')renderIdeas()}
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>show(b.dataset.tab));document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 function renderPlan(){let start=monday(),days=['Mån','Tis','Ons','Tor','Fre','Lör','Sön'],p=plans[key()]||{};$('#week').textContent=start.toLocaleDateString('sv-SE',{day:'numeric',month:'short'})+' + 6 dagar';$('#days').innerHTML=days.map((d,i)=>'<div class="day"><strong>'+d+'</strong><select data-day="'+i+'"><option value="">+ Lägg till rätt</option>'+recipes.map(r=>'<option '+(p[i]===r.name?'selected':'')+' value="'+esc(r.name)+'">'+esc(r.name)+'</option>').join('')+'<option value="Annat" '+(p[i]==='Annat'?'selected':'')+'>Annat / äter ute</option></select><span>🍽️</span></div>').join('');document.querySelectorAll('[data-day]').forEach(s=>s.onchange=()=>{let p=plans[key()]||{};p[s.dataset.day]=s.value;plans[key()]=p;save('plans',plans)});document.querySelectorAll('[data-time],[data-cook]').forEach(el=>el.onchange=()=>{let p=plans[key()]||{};p.cooking=p.cooking||{};let i=el.dataset.time??el.dataset.cook;p.cooking[i]=p.cooking[i]||{};p.cooking[i][el.dataset.time!==undefined?'time':'cook']=el.value;plans[key()]=p;save('plans',plans)});document.querySelectorAll('[data-ics]').forEach(b=>b.onclick=()=>downloadEvent(+b.dataset.ics))}
 function downloadEvent(i){let p=plans[key()]||{},c=(p.cooking||{})[i]||{},meal=p[i]||'Matlagning';if(!c.cook){alert('Välj vem som lagar maten först.');return}let day=monday();day.setDate(day.getDate()+i);let [hh,mm]=(c.time||'17:30').split(':').map(Number);day.setHours(hh,mm,0,0);let end=new Date(day.getTime()+60*60000),fmt=d=>d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0')+'00',safe=x=>String(x).replace(/\\/g,'\\\\').replace(/,/g,'\\,').replace(/;/g,'\\;').replace(/\n/g,'\\n');let content=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Birkebro//Matresa//SV','BEGIN:VEVENT','UID:birkebro-'+key()+'-'+i+'@matresa','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'').replace(/Z$/,'Z'),'DTSTART:'+fmt(day),'DTEND:'+fmt(end),'SUMMARY:'+safe('Laga mat: '+meal+' – '+c.cook),'DESCRIPTION:'+safe('Ansvarig för matlagningen: '+c.cook),'END:VEVENT','END:VCALENDAR'].join('\r\n');let a=document.createElement('a'),url=URL.createObjectURL(new Blob([content],{type:'text/calendar;charset=utf-8'}));a.href=url;a.download='matlagning-'+key()+'-'+i+'.ics';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 $('#prev').onclick=()=>{offset--;renderPlan()};$('#next').onclick=()=>{offset++;renderPlan()};
-function renderRecipes(){$('#recipesList').innerHTML=recipes.map((r,i)=>'<div class="recipe"><h3>'+esc(r.name)+'</h3><p class="muted">'+r.ingredients.map(esc).join(' · ')+'</p><details><summary>Visa tillagning</summary><p>'+esc(r.steps||'')+'</p></details><button data-remove="'+i+'">Ta bort</button></div>').join('');document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{if(confirm('Ta bort receptet?')){recipes.splice(+b.dataset.remove,1);save('recipes',recipes);renderRecipes();renderPlan()}})}
-$('#recipeForm').onsubmit=e=>{e.preventDefault();recipes.push({name:$('#rname').value.trim(),ingredients:$('#ring').value.split('\n').map(x=>x.trim()).filter(Boolean),steps:$('#rsteps').value});save('recipes',recipes);e.target.reset();renderRecipes();renderPlan()};
-function renderItems(){$('#items').innerHTML=items.length?items.map((x,i)=>'<div class="day" style="grid-template-columns:1fr auto"><label style="font-weight:normal"><input type="checkbox" data-check="'+i+'" '+(x.done?'checked':'')+' style="width:auto;margin-right:10px"><span style="'+(x.done?'text-decoration:line-through;opacity:.5':'')+'">'+esc(x.name)+'</span></label><button data-del="'+i+'">×</button></div>').join(''):'<p>Listan är tom.</p>';document.querySelectorAll('[data-check]').forEach(b=>b.onchange=()=>{items[+b.dataset.check].done=b.checked;save('items',items);renderItems()});document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{items.splice(+b.dataset.del,1);save('items',items);renderItems()})}
+function renderRecipes(){$('#recipesList').innerHTML=recipes.map((r,i)=>'<div class="recipe"><h3>'+esc(r.name)+'</h3>'+(r.photo&&/^data:image\/jpeg;base64,[a-z0-9+/=]+$/i.test(r.photo)?'<a href="'+r.photo+'" download="recept.jpg"><img style="display:block;max-width:100%;max-height:180px;border-radius:12px" alt="Receptfoto" src="'+r.photo+'"></a>':'')+'<p class="muted">'+r.ingredients.map(esc).join(' · ')+'</p><details><summary>Visa tillagning</summary><p>'+esc(r.steps||'')+'</p></details><button data-shop="'+i+'">Lägg ingredienser i inköpslistan</button> <button data-remove="'+i+'">Ta bort</button></div>').join('');document.querySelectorAll('[data-shop]').forEach(button=>button.onclick=()=>{addIngredients(recipes[Number(button.dataset.shop)].ingredients);show('shopping')});document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{if(confirm('Ta bort receptet?')){recipes.splice(+b.dataset.remove,1);save('recipes',recipes);renderRecipes();renderPlan()}})}
+
+async function resizePhoto(file){
+ const bitmap=await createImageBitmap(file);
+ try{
+  const scale=Math.min(1,1400/Math.max(bitmap.width,bitmap.height));
+  const canvas=document.createElement('canvas');
+  canvas.width=Math.max(1,Math.round(bitmap.width*scale));
+  canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+  canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);
+  return canvas.toDataURL('image/jpeg',0.8);
+ }finally{bitmap.close()}
+}
+$('#recipeForm').onsubmit=async event=>{
+ event.preventDefault();
+ const form=event.target,submit=form.querySelector('button'),status=$('#photoStatus');
+ const name=$('#rname').value.trim(),ingredients=$('#ring').value.split('\n').map(line=>line.trim()).filter(Boolean);
+ if(!name||!ingredients.length)return;
+ if(recipes.some(recipe=>recipe.name.toLocaleLowerCase('sv')===name.toLocaleLowerCase('sv'))){
+  status.textContent='Ett recept med det namnet finns redan.';
+  return;
+ }
+ submit.disabled=true;
+ const steps=$('#rsteps').value,file=$('#recipePhoto').files[0];
+ try{
+  const photo=file?await resizePhoto(file):undefined;
+  const updated=[...recipes,{name,ingredients,steps,photo}];
+  save('recipes',updated);
+  recipes=updated;
+  form.reset();
+  status.textContent='';
+  renderRecipes();
+  renderPlan();
+ }catch{
+  status.textContent='Receptet kunde inte sparas. Prova ett mindre foto eller spara receptet utan foto.';
+ }finally{submit.disabled=false}
+};
+const aisles=[
+ ['Frukt och grönt',/potatis|tomat|gurka|paprika|sallad|lök|citron|äpple|broccoli|morot|avokado/],
+ ['Bröd',/bröd|tortilla|baguette/],
+ ['Kex och korv',/kex|korv|salami/],
+ ['Ost',/ost|mozzarella|parmesan/],
+ ['Kyckling och kött',/kyckling|kött|färs|lax|torsk|räkor/],
+ ['Ägg och mejeri',/ägg|mjölk|kvarg|grädde|crème fraîche|yoghurt|smör/],
+ ['Fryst',/fryst|frysta|frys/],
+ ['Hushåll',/papper|diskmedel|tvättmedel/],
+ ['Kryddor och konserver',/krydda|salt|peppar|konserv|ketchup|ajvar|tonfisk|bönor|krossad|olja/],
+ ['Sylt, kaffe och frukost',/sylt|kaffe|granola|havregryn/],
+ ['Dryck',/dryck|juice|must|läsk/],
+ ['Fryst vid kassorna',/glass|fryst.*(?:mango|bär)|(?:mango|bär).*fryst/],
+ ['Övrigt',/.*/]
+];
+function aisle(name){
+ const value=name.toLocaleLowerCase('sv');
+ for(const index of [11,6,8])if(aisles[index][1].test(value))return index;
+ return aisles.findIndex(([,pattern])=>pattern.test(value));
+}
+function addIngredients(ingredients){
+ const known=new Set(items.map(item=>item.name.toLocaleLowerCase('sv')));
+ for(const name of ingredients){
+  const normalized=name.toLocaleLowerCase('sv');
+  if(known.has(normalized))continue;
+  items.push({name,done:false});
+  known.add(normalized);
+ }
+ save('items',items);
+}
+function renderItems(){$('#items').innerHTML=items.length?items.map((x,i)=>({x,i,aisle:aisle(x.name)})).sort((a,b)=>a.aisle-b.aisle).map(({x,i,aisle},position,ordered)=>(position===0||ordered[position-1].aisle!==aisle?'<h3>'+esc(aisles[aisle][0])+'</h3>':'')+'<div class="day" style="grid-template-columns:1fr auto"><label style="font-weight:normal"><input type="checkbox" data-check="'+i+'" '+(x.done?'checked':'')+' style="width:auto;margin-right:10px"><span style="'+(x.done?'text-decoration:line-through;opacity:.5':'')+'">'+esc(x.name)+'</span></label><button data-del="'+i+'">×</button></div>').join(''):'<p>Listan är tom.</p>';document.querySelectorAll('[data-check]').forEach(b=>b.onchange=()=>{items[+b.dataset.check].done=b.checked;save('items',items);renderItems()});document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{items.splice(+b.dataset.del,1);save('items',items);renderItems()})}
 $('#itemForm').onsubmit=e=>{e.preventDefault();items.push({name:$('#itemName').value.trim(),done:false});save('items',items);e.target.reset();renderItems()};
-$('#generate').onclick=()=>{let p=plans[key()]||{},names=[...new Set(Object.values(p))],ing=recipes.filter(r=>names.includes(r.name)).flatMap(r=>r.ingredients);items.push(...ing.map(name=>({name,done:false})));save('items',items);renderItems()};
+$('#generate').onclick=()=>{let p=plans[key()]||{},names=[...new Set(Object.values(p))],ing=recipes.filter(r=>names.includes(r.name)).flatMap(r=>r.ingredients);addIngredients(ing);renderItems()};
 $('#clearChecked').onclick=()=>{items=items.filter(x=>!x.done);save('items',items);renderItems()};
 $('#random').onclick=()=>$('#suggestion').textContent=recipes.length?recipes[Math.floor(Math.random()*recipes.length)].name:'Lägg till ett recept först';
+
+const newIdeas=[
+ {name:'Citronlax med ugnspotatis',ingredients:['600 g lax','800 g potatis','1 citron','2 dl crème fraîche'],steps:'Rosta potatisen i 225 °C. Lägg in laxen mot slutet och ugnsbaka tills den är klar. Servera med citron och crème fraîche.'},
+ {name:'Milda svarta bönor i tortillabröd',ingredients:['2 burkar svarta bönor','8 tortillabröd','1 gurka','2 dl yoghurt','150 g riven ost'],steps:'Skölj och värm bönorna. Duka fram bröd, skivad gurka, yoghurt och ost så att alla kan fylla sina egna tortillas.'},
+ {name:'Ugnspannkaka med äpple',ingredients:['3 ägg','6 dl mjölk','2,5 dl vetemjöl','2 äpplen'],steps:'Vispa ägg, mjölk och mjöl. Häll i en smord långpanna, lägg på tunt skivat äpple och grädda i 225 °C tills pannkakan stelnat och fått färg.'}
+];
+const matches=(text,pattern)=>pattern.test(text.toLocaleLowerCase('sv'));
+function mealTags(recipe){
+ const text=recipe.name+' '+recipe.ingredients.join(' ');
+ return [
+  [/köttfärs|nötfärs|blandfärs|lasagne|köttfärssås/,'färs'],
+  [/pasta|spagett|spaghett|lasagne|makaron|penne/,'pasta'],
+  [/kyckling|kalkon/,'fågel'],
+  [/lax|tonfisk|torsk|fisk|räkor/,'fisk'],
+  [/bönor|linser|kikärtor/,'baljväxter'],
+  [/pannkak/,'pannkaka']
+ ].filter(([pattern])=>matches(text,pattern)).map(([,tag])=>tag);
+}
+function suggestWeek(){
+ const week=plans[key()]||{};
+ const used=new Set(Array.from({length:7},(_,day)=>week[day]).filter(Boolean));
+ const candidates=recipes.filter(recipe=>!used.has(recipe.name));
+ for(let i=candidates.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));
+  [candidates[i],candidates[j]]=[candidates[j],candidates[i]];
+ }
+ const tags=new Map(recipes.map(recipe=>[recipe.name,mealTags(recipe)]));
+ const overlaps=(a,b)=>(tags.get(a)||[]).some(tag=>(tags.get(b)||[]).includes(tag));
+ let added=0;
+ for(let day=0;day<7;day++){
+  if(week[day])continue;
+  const previous=week[day-1],next=week[day+1];
+  const index=candidates.findIndex(recipe=>!overlaps(recipe.name,previous)&&!overlaps(recipe.name,next));
+  if(index<0)continue;
+  week[day]=candidates.splice(index,1)[0].name;
+  added++;
+ }
+ plans[key()]=week;
+ save('plans',plans);
+ renderPlan();
+ const missing=Array.from({length:7},(_,day)=>!week[day]).filter(Boolean).length;
+ $('#weekStatus').textContent=(added ? 'Fyllde '+added+' dagar med recept från er samling.' : 'Inga nya dagar fylldes.')+(missing ? ' '+missing+' dagar är öppna. Lägg till fler olika recept eller välj rätt själv.' : '');
+}
+function renderIdeas(){
+ const unused=newIdeas.filter(idea=>!recipes.some(recipe=>recipe.name===idea.name));
+ $('#newIdeas').innerHTML=unused.map(idea=>'<details class="recipe"><summary>'+esc(idea.name)+'</summary><p>'+idea.ingredients.map(esc).join(' · ')+'</p><p>'+esc(idea.steps)+'</p><button data-idea="'+newIdeas.indexOf(idea)+'">Spara i receptsamlingen</button></details>').join('')||'<p>Alla förslag finns i receptsamlingen.</p>';
+ document.querySelectorAll('[data-idea]').forEach(button=>button.onclick=()=>{
+  recipes.push(newIdeas[Number(button.dataset.idea)]);
+  save('recipes',recipes);
+  renderIdeas();
+  renderPlan();
+ });
+}
+$('#suggestWeek').onclick=suggestWeek;
 renderPlan();renderRecipes();renderItems();
 </script></body></html>
